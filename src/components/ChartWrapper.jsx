@@ -4,116 +4,120 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Field, Form } from "react-final-form";
 import Grid from "@material-ui/core/Grid";
 import { getChartKey } from "../data/actions/dataActions";
-import { Chart } from "./Chart";
+import { Chart } from "./charts/Chart";
+import { map, trim, toUpper } from "lodash";
+import { withStyles } from "@material-ui/styles";
+import Button from "@material-ui/core/Button";
 
-const useStyles = makeStyles(theme => ({
+const styles = {
   paper: {
-    marginTop: theme.spacing(4),
     display: "flex",
     flexDirection: "column",
-    alignItems: "flex-end"
-  },
-  avatar: {
-    margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main
+    alignItems: "flex-start"
   },
   form: {
-    width: "100%", // Fix IE 11 issue.
-    marginTop: theme.spacing(1)
-  },
-  submit: {
-    margin: theme.spacing(3, 0, 2)
+    width: "100%" // Fix IE 11 issue.
   },
   textField: {
-    background: "#d8e481",
     padding: "8px 16px",
     width: "100%"
+  },
+  textFieldInput: {
+    color: "#E9F1F7",
+    backgroundColor: "#042a2b"
+  },
+  textFieldLabel: {
+    color: "#E9F1F7"
   }
-}));
+};
 
-const onSubmit = props => values => {
-  console.log(props, values);
-  props.fetchChart(values && values.symbol.toUpperCase(), values.months);
+let fetchChart = null;
+export const setFetchSymbol = f => {
+  fetchChart = f;
 };
 
 class ChartWrapper extends React.Component {
+  state = {
+    stateMonths: 36,
+    stateSymbol: []
+  };
+
   componentDidMount() {
-    const { data, symbol, months, fetchSymbol } = this.props;
-    if (!data.charts[getChartKey(symbol, months)]) {
-      fetchSymbol(symbol, months);
+    const { data, symbols, months } = this.props;
+
+    symbols &&
+      symbols.map(sym => {
+        if (!data || !data.charts || !data.charts[getChartKey(sym, months)]) {
+          fetchChart && fetchChart(sym, months);
+        }
+      });
+  }
+
+  onSubmit(values) {
+    console.log(this.props, this.state, values);
+    const symbols = map(map(values.symbol.split(","), trim), toUpper);
+    console.log(symbols);
+    for (let symbol of symbols) {
+      fetchChart(symbol, values.months);
     }
+    this.setState({ stateSymbol: symbols, stateMonths: values.months });
   }
 
   render() {
-    const { symbol, months, indicators, data } = this.props;
-    const classes = useStyles();
+    const { symbols, months, classes, ...rest } = this.props;
+    const { stateSymbol, stateMonths } = this.state;
+
+    let keys = [];
+    if (!symbols) {
+      keys = stateSymbol.map(sym => getChartKey(sym, stateMonths));
+    } else {
+      keys = symbols.map(sym => getChartKey(sym, months));
+    }
 
     return (
       <div className={classes.paper}>
-        {!props.symbol ||
-          (!props.months && (
-            <Form
-              onSubmit={onSubmit(props)}
-              initialValues={{}}
-              render={({
-                handleSubmit,
-                form,
-                submitting,
-                pristine,
-                values
-              }) => (
-                <form className="chart-options" onSubmit={handleSubmit}>
-                  <Grid
-                    container
-                    spacing={2}
-                    alignItems="flex-start"
-                    justify="center"
-                  >
-                    <Grid item md={6} xs={6}>
-                      <Field name="symbol">
-                        {({ input, meta }) => (
-                          <TextField
-                            inputProps={input}
-                            className={classes.textField}
-                            type="text"
-                            error={meta.error && meta.touched}
-                            helperText={
-                              (meta.error && meta.touched && meta.error) ||
-                              "Symbol to Chart"
-                            }
-                            placeholder="ABC"
-                          />
-                        )}
-                      </Field>
-                    </Grid>
-                    <Grid item md={6} xs={6}>
-                      <Field name="months">
-                        {({ input, meta }) => (
-                          <TextField
-                            inputProps={input}
-                            className={classes.textField}
-                            type="number"
-                            error={meta.error && meta.touched}
-                            helperText={
-                              (meta.error && meta.touched && meta.error) ||
-                              "Duration in months"
-                            }
-                            placeholder="36"
-                          />
-                        )}
-                      </Field>
-                    </Grid>
+        {(!symbols || !months) && (
+          <Form
+            onSubmit={values => this.onSubmit(values)}
+            render={({ handleSubmit, form, submitting, pristine, values }) => (
+              <form className="chart-options" onSubmit={handleSubmit}>
+                <Grid
+                  container
+                  spacing={2}
+                  alignItems="flex-start"
+                  justify="center"
+                >
+                  <Grid item md={5} xs={5}>
+                    <Field name="symbol">
+                      {({ input, meta }) => (
+                        <TextField
+                          label={"Symbol"}
+                          inputProps={input}
+                          autoFocus
+                          className={classes.textField}
+                          color="primary"
+                          type="text"
+                          InputProps={{ disableUnderline: true }}
+                          variant="filled"
+                          error={meta.error && meta.touched}
+                          helperText={
+                            (meta.error && meta.touched && meta.error) ||
+                            "Symbol to Chart"
+                          }
+                          placeholder="ABC"
+                        />
+                      )}
+                    </Field>
                   </Grid>
-                </form>
-              )}
-            />
-          ))}
-        });
-        <Chart
-          indicators={indicators}
-          data={data.charts[getChartKey(symbol, months)]}
-        />
+                </Grid>
+              </form>
+            )}
+          />
+        )}
+        <Chart dataKeys={keys} {...rest} />
       </div>
     );
   }
 }
+
+export default withStyles(styles, { withTheme: true })(ChartWrapper);

@@ -4,15 +4,19 @@ import "./App.less";
 import { BrowserRouter } from "react-router-dom";
 import { connect } from "react-redux";
 import { getChart } from "./data/actions/dataActions";
-import { ChartWrapper } from "./components/ChartWrapper";
+import { ChartWrapper, setFetchSymbol } from "./components/ChartWrapper";
 import { Route } from "react-router";
 import Container from "@material-ui/core/Container";
 import CssBaseline from "@material-ui/core/CssBaseline";
+import Analysis from "./components/Analysis";
+import { MuiThemeProvider } from "@material-ui/core/styles";
+import { theme } from "./theme";
 
 function App(props) {
+  setFetchSymbol(props.fetchChart);
   return (
-    <div className="App">
-      <Container component="main">
+    <MuiThemeProvider theme={theme}>
+      <Container component="main" className="App" color="primary">
         <CssBaseline />
         <BrowserRouter>
           <Route exact path="/" render={() => <Analysis {...props} />} />
@@ -20,13 +24,13 @@ function App(props) {
         <Route path="/momentum" component={Momentum} />*/}
         </BrowserRouter>
       </Container>
-    </div>
+    </MuiThemeProvider>
   );
 }
 
 const mapStateToProps = state => {
   console.log(state);
-  return { data: state.data };
+  return state.data;
 };
 
 const mapDispatchToProps = dispatch => {

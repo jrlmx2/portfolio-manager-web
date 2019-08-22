@@ -9,7 +9,11 @@ export const data = (state = InitialState, action) => {
   switch (action.type) {
     case DataActionTypes.update:
       const propsToUpdate = pick(action, dataProps);
-      propsToUpdate.chart = Object.assign({}, state.chart, propsToUpdate.chart);
+      propsToUpdate.charts = Object.assign(
+        {},
+        state.charts,
+        propsToUpdate.charts
+      );
       return Object.assign({}, state, propsToUpdate);
     default:
       return state;

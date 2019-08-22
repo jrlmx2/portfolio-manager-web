@@ -1,11 +1,29 @@
-.App {
+/* Coolors Exported Palette - coolors.co/415a77-080705-e9f1f7-39393a-f42c04 */
+
+/* RGB */
+@blue: rgba(65, 90, 119, 1);
+@black: rgba(8, 7, 5, 1);
+@offwhite: rgba(233, 241, 247, 1);
+@onyx: rgba(57, 57, 58, 1);
+@brightred: rgba(244, 44, 4, 1);
+@darkgreen: #042a2b;
+
+body {
+  background-color: @onyx !important;
+  color: @offwhite !important;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #0d7d82;
-  .chart-options {
-    width: 50%;
+  .App {
+    .chart-options {
+      width: 50%;
+    }
+
+    .chart {
+      width: 100%;
+      height: 100%;
+    }
   }
 }

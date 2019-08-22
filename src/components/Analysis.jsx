@@ -1,37 +1,36 @@
+import React from "react";
+
 import { makeStyles } from "@material-ui/core";
+import Grid from "@material-ui/core/Grid";
+import ChartWrapper from "./ChartWrapper";
 
-const useStyles = makeStyles(theme => ({
-  paper: {
-    marginTop: theme.spacing(4),
+import { theme } from "../theme";
+import withStyles from "@material-ui/styles/withStyles";
+
+const styles = {
+  paperHorizontal: {
     display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-end"
+    flexDirection: "row",
+    alignItems: "flex-start",
+    minHeight: "900px",
+    padding: theme.spacing(4)
   },
-  paperHorizaontal: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-end"
-  },
-  avatar: {
-    margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main
-  },
-  form: {
-    width: "100%", // Fix IE 11 issue.
-    marginTop: theme.spacing(1)
-  },
-  submit: {
-    margin: theme.spacing(3, 0, 2)
-  },
-  textField: {
-    background: "#d8e481",
-    padding: "8px 16px",
-    width: "100%"
+  grid: {
+    padding: theme.spacing(4)
   }
-}));
-
-const Analysis = props => {
-  const classes = useStyles();
-
-  return <div className={classes.paper}></div>;
 };
+const Analysis = props => {
+  const { classes, ...rest } = props;
+  console.log(props);
+  return (
+    <div>
+      <Grid container component="div">
+        <Grid item xs={12} component="div" className={classes.grid}>
+          <ChartWrapper {...rest} />
+        </Grid>
+      </Grid>
+    </div>
+  );
+};
+
+export default withStyles(styles, { withTheme: true })(Analysis);
